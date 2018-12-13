@@ -1,11 +1,11 @@
-package io.maslick.heimdaller
+package io.maslick.keycloaker
 
 import android.annotation.SuppressLint
 import android.os.Handler
 import android.os.Looper
-import rx.Single
-import rx.android.schedulers.AndroidSchedulers
-import rx.schedulers.Schedulers
+import io.reactivex.Single
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 
 object AsyncHelper {
     @SuppressLint("CheckResult")

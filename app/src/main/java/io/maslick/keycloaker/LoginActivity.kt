@@ -1,5 +1,6 @@
-package io.maslick.heimdaller
+package io.maslick.keycloaker
 
+import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
@@ -7,11 +8,12 @@ import android.view.View
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
-import com.trello.rxlifecycle.components.support.RxAppCompatActivity
+import com.trello.rxlifecycle2.components.support.RxAppCompatActivity
+
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_login.*
 import okhttp3.HttpUrl
-import rx.android.schedulers.AndroidSchedulers
-import rx.schedulers.Schedulers
 import timber.log.Timber
 
 class LoginActivity : RxAppCompatActivity() {
@@ -44,6 +46,7 @@ class LoginActivity : RxAppCompatActivity() {
 
     private fun initAuth() {
         webView.webViewClient = object : WebViewClient() {
+            @SuppressLint("CheckResult")
             override fun onPageStarted(view: WebView, url: String, favicon: Bitmap?) {
                 super.onPageStarted(view, url, favicon)
                 if (url.startsWith(redirectUri)) {

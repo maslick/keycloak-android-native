@@ -1,4 +1,4 @@
-package io.maslick.heimdaller
+package io.maslick.keycloaker
 
 import org.junit.Test
 

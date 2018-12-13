@@ -1,4 +1,4 @@
-package io.maslick.heimdaller
+package io.maslick.keycloaker
 
 import android.support.test.InstrumentationRegistry
 import android.support.test.runner.AndroidJUnit4

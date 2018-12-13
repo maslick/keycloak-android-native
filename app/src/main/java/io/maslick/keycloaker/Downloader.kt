@@ -1,16 +1,16 @@
-package io.maslick.heimdaller
+package io.maslick.keycloaker
 
 import com.google.gson.GsonBuilder
 import com.google.gson.annotations.SerializedName
+import io.reactivex.Observable
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
-import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.POST
-import rx.Observable
 import timber.log.Timber
 
 
@@ -29,7 +29,7 @@ object Downloader {
         .baseUrl("$baseUrl/")
         .client(okHttpClient)
         .addConverterFactory(GsonConverterFactory.create(GsonBuilder().setLenient().create()))
-        .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+        .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
         .build()
 }
 
