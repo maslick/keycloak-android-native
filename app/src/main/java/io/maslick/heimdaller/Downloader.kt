@@ -1,7 +1,7 @@
 package io.maslick.heimdaller
 
 import com.google.gson.GsonBuilder
-import de.rheinfabrik.heimdall.OAuth2AccessToken
+import com.google.gson.annotations.SerializedName
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -37,17 +37,28 @@ interface IKeycloakRest {
     @POST("token")
     @FormUrlEncoded
     fun grantNewAccessToken(
-        @Field("code") code: String,
-        @Field("client_id") clientId: String,
+        @Field("code")         code: String,
+        @Field("client_id")    clientId: String,
         @Field("redirect_uri") uri: String,
-        @Field("grant_type") grantType: String
-    ): Observable<OAuth2AccessToken>
+        @Field("grant_type")   grantType: String
+    ): Observable<KeycloakToken>
 
     @POST("token")
     @FormUrlEncoded
     fun refreshAccessToken(
-        @Field("grant_type") grantType: String,
+        @Field("grant_type")    grantType: String,
         @Field("refresh_token") refreshToken: String,
-        @Field("client_id") clientId: String
-    ): Observable<OAuth2AccessToken>
+        @Field("client_id")     clientId: String
+    ): Observable<KeycloakToken>
 }
+
+data class KeycloakToken(
+    @SerializedName("access_token")       var accessToken: String? = null,
+    @SerializedName("expires_in")         var expiresIn: Int? = null,
+    @SerializedName("refresh_expires_in") var refreshExpiresIn: Int? = null,
+    @SerializedName("refresh_token")      var refreshToken: String? = null,
+    @SerializedName("token_type")         val tokenType: String? = null,
+    @SerializedName("id_token")           val idToken: String? = null,
+    @SerializedName("not-before-policy")  val notBeforePolicy: Int? = null,
+    @SerializedName("session_state")      val sessionState: String? = null
+)
