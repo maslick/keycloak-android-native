@@ -4,8 +4,10 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.view.View
+import android.webkit.CookieManager
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
@@ -15,6 +17,7 @@ import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_login.*
 import okhttp3.HttpUrl
 import timber.log.Timber
+
 
 class LoginActivity : RxAppCompatActivity() {
 
@@ -48,6 +51,7 @@ class LoginActivity : RxAppCompatActivity() {
         val ua = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:46.0) Gecko/20100101 Firefox/46.0"
         webView.settings.userAgentString = ua
         webView.settings.javaScriptEnabled = true
+        clearCookies()
         webView.settings.javaScriptCanOpenWindowsAutomatically = true
 
         webView.webViewClient = object : WebViewClient() {
@@ -77,5 +81,17 @@ class LoginActivity : RxAppCompatActivity() {
         }
 
         webView.loadUrl(authCodeUrl)
+    }
+
+    private fun clearCookies() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+            CookieManager.getInstance().removeAllCookies(null)
+            CookieManager.getInstance().flush()
+        }
+    }
+
+    override fun onBackPressed() {
+        finish()
+        startActivity(intent)
     }
 }
