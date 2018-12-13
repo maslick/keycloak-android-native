@@ -2,6 +2,7 @@ package io.maslick.keycloaker
 
 import com.google.gson.GsonBuilder
 import com.google.gson.annotations.SerializedName
+import io.reactivex.Completable
 import io.reactivex.Observable
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -50,6 +51,13 @@ interface IKeycloakRest {
         @Field("refresh_token") refreshToken: String,
         @Field("client_id")     clientId: String
     ): Observable<KeycloakToken>
+
+    @POST("logout")
+    @FormUrlEncoded
+    fun logout(
+        @Field("client_id") clientId: String,
+        @Field("refresh_token") refreshToken: String
+    ): Completable
 }
 
 data class KeycloakToken(
