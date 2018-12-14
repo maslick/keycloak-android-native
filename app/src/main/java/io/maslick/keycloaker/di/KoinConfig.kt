@@ -83,9 +83,9 @@ data class KeycloakToken(
     @SerializedName("expires_in")         var expiresIn: Int? = null,
     @SerializedName("refresh_expires_in") var refreshExpiresIn: Int? = null,
     @SerializedName("refresh_token")      var refreshToken: String? = null,
-    @SerializedName("token_type")         val tokenType: String? = null,
-    @SerializedName("id_token")           val idToken: String? = null,
-    @SerializedName("not-before-policy")  val notBeforePolicy: Int? = null,
-    @SerializedName("session_state")      val sessionState: String? = null,
-                                          val expirationDate: Calendar? = null
+    @SerializedName("token_type")         var tokenType: String? = null,
+    @SerializedName("id_token")           var idToken: String? = null,
+    @SerializedName("not-before-policy")  var notBeforePolicy: Int? = null,
+    @SerializedName("session_state")      var sessionState: String? = null,
+    @SerializedName("expiration_date")    var expirationDate: Calendar? = null
 )

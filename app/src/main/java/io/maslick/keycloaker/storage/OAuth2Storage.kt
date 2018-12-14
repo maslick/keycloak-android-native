@@ -3,21 +3,21 @@ package io.maslick.keycloaker.storage
 import android.content.SharedPreferences
 import com.google.gson.Gson
 import io.maslick.keycloaker.di.KeycloakToken
-import io.reactivex.Single
 
 interface IOAuth2AccessTokenStorage {
-    fun getStoredAccessToken(): Single<KeycloakToken>
+    fun getStoredAccessToken(): KeycloakToken?
     fun storeAccessToken(token: KeycloakToken)
-    fun hasAccessToken(): Single<Boolean>
+    fun hasAccessToken(): Boolean
     fun removeAccessToken()
 }
 
 class SharedPreferencesOAuth2Storage(val prefs: SharedPreferences, val gson: Gson) : IOAuth2AccessTokenStorage {
     val ACCESS_TOKEN_PREFERENCES_KEY = "OAuth2AccessToken"
 
-    override fun getStoredAccessToken(): Single<KeycloakToken> {
-        return Single.just(prefs.getString(ACCESS_TOKEN_PREFERENCES_KEY, null))
-            .map { gson.fromJson(it, KeycloakToken::class.java) }
+    override fun getStoredAccessToken(): KeycloakToken? {
+        val tokenStr = prefs.getString(ACCESS_TOKEN_PREFERENCES_KEY, null)
+        return if (tokenStr == null) null
+        else gson.fromJson(tokenStr, KeycloakToken::class.java)
     }
 
     override fun storeAccessToken(token: KeycloakToken) {
@@ -26,8 +26,8 @@ class SharedPreferencesOAuth2Storage(val prefs: SharedPreferences, val gson: Gso
             .apply()
     }
 
-    override fun hasAccessToken(): Single<Boolean> {
-        return Single.just(prefs.contains(ACCESS_TOKEN_PREFERENCES_KEY))
+    override fun hasAccessToken(): Boolean {
+        return prefs.contains(ACCESS_TOKEN_PREFERENCES_KEY)
     }
 
     override fun removeAccessToken() {

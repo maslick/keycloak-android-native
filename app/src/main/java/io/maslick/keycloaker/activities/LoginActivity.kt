@@ -1,7 +1,6 @@
 package io.maslick.keycloaker.activities
 
 import android.annotation.SuppressLint
-import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
@@ -17,20 +16,27 @@ import io.maslick.keycloaker.Config.clientId
 import io.maslick.keycloaker.Config.redirectUri
 import io.maslick.keycloaker.R
 import io.maslick.keycloaker.di.IKeycloakRest
+import io.maslick.keycloaker.di.KeycloakToken
 import io.maslick.keycloaker.helper.AsyncHelper
+import io.maslick.keycloaker.helper.Helper.isTokenExpired
+import io.maslick.keycloaker.storage.IOAuth2AccessTokenStorage
+import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.functions.Consumer
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_login.*
 import okhttp3.HttpUrl
 import org.koin.android.ext.android.inject
 import timber.log.Timber
+import java.util.*
 
 
 class LoginActivity : RxAppCompatActivity() {
 
-    val api by inject<IKeycloakRest>()
+    private val api by inject<IKeycloakRest>()
+    private val storage by inject<IOAuth2AccessTokenStorage>()
 
-    val authCodeUrl = Uri.parse(authenticationCodeUrl)
+    private val authCodeUrl = Uri.parse(authenticationCodeUrl)
         .buildUpon()
         .appendQueryParameter("client_id", clientId)
         .appendQueryParameter("redirect_uri", redirectUri)
@@ -42,7 +48,19 @@ class LoginActivity : RxAppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
         initTimber()
+        checkTokenInStorage()
         initAuth()
+    }
+
+    private fun checkTokenInStorage() {
+        val accessToken = storage.getStoredAccessToken()
+        if (accessToken == null) return
+        else if (!isTokenExpired(accessToken)) {
+            setResult(RESULT_OK)
+            finish()
+        }
+        else
+            handleRefreshToken(accessToken.refreshToken!!).subscribe(handleSuccess(), handleError())
     }
 
     private fun initTimber() {
@@ -50,15 +68,14 @@ class LoginActivity : RxAppCompatActivity() {
         Timber.plant(tree)
     }
 
-    @SuppressLint("SetJavaScriptEnabled")
+    @SuppressLint("SetJavaScriptEnabled", "CheckResult")
     private fun initAuth() {
         webView.settings.userAgentString = "Barkoder/0.1 Android app"
         webView.settings.javaScriptEnabled = true
-        clearCookies()
         webView.settings.javaScriptCanOpenWindowsAutomatically = true
+        clearCookies()
 
         webView.webViewClient = object : WebViewClient() {
-            @SuppressLint("CheckResult")
             override fun onPageStarted(view: WebView, url: String, favicon: Bitmap?) {
                 super.onPageStarted(view, url, favicon)
                 if (url.startsWith(redirectUri)) {
@@ -67,18 +84,7 @@ class LoginActivity : RxAppCompatActivity() {
                         .subscribeOn(Schedulers.io())
                         .compose(bindToLifecycle())
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe({
-                            val intent = Intent(this@LoginActivity, MainActivity::class.java)
-                            intent.putExtra("token", it.accessToken)
-                            intent.putExtra("refreshToken", it.refreshToken)
-                            intent.putExtra("expiresIn", it.expiresIn)
-                            intent.putExtra("refreshExpiresIn", it.refreshExpiresIn)
-                            this@LoginActivity.startActivity(intent)
-                            println(it)
-                        }, {
-                            it.printStackTrace()
-                            Toast.makeText(this@LoginActivity, "Error: ${it.message}", Toast.LENGTH_LONG).show()
-                        })
+                        .subscribe(handleSuccess(), handleError())
                 }
             }
         }
@@ -93,8 +99,29 @@ class LoginActivity : RxAppCompatActivity() {
         }
     }
 
-    override fun onBackPressed() {
-        finish()
-        startActivity(intent)
+    private fun handleSuccess(): Consumer<KeycloakToken> {
+        return Consumer { token ->
+            val expirationDate = Calendar.getInstance().clone() as Calendar
+            expirationDate.add(Calendar.SECOND, token.expiresIn!!)
+            token.expirationDate = expirationDate
+            storage.storeAccessToken(token)
+            setResult(RESULT_OK)
+            finish()
+        }
+    }
+
+    private fun handleError(): Consumer<Throwable> {
+        return Consumer {
+            it.printStackTrace()
+            Toast.makeText(this@LoginActivity, "Error: ${it.message}", Toast.LENGTH_LONG).show()
+        }
+    }
+
+    @SuppressLint("CheckResult", "SetTextI18n")
+    private fun handleRefreshToken(refreshToken: String): Observable<KeycloakToken> {
+        return api.refreshAccessToken(refreshToken, clientId)
+            .compose(bindToLifecycle())
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
     }
 }
