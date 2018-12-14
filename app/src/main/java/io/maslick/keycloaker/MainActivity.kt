@@ -3,24 +3,27 @@ package io.maslick.keycloaker
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
 import android.text.method.ScrollingMovementMethod
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
+import com.trello.rxlifecycle2.components.support.RxAppCompatActivity
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : RxAppCompatActivity() {
 
     lateinit var token: String
     lateinit var refreshToken: String
+    lateinit var api: IKeycloakRest
 
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        api = Downloader.retrofit.create(IKeycloakRest::class.java)
 
         token = intent.getStringExtra("token")
         refreshToken = intent.getStringExtra("refreshToken")
@@ -41,21 +44,44 @@ class MainActivity : AppCompatActivity() {
         return true
     }
 
-    @SuppressLint("CheckResult")
+    @SuppressLint("CheckResult", "SetTextI18n")
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        if (item!!.itemId == R.id.logout) {
-            Downloader.retrofit.create(IKeycloakRest::class.java).logout("barkoder-frontend", refreshToken)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({
-                    Toast.makeText(this, "logged out :)", Toast.LENGTH_LONG).show()
-                    this@MainActivity.startActivity(Intent(this@MainActivity, LoginActivity::class.java))
-                }, {
-                    it.printStackTrace()
-                    Toast.makeText(this@MainActivity, "Error: ${it.message}", Toast.LENGTH_LONG).show()
-                })
+        when (item!!.itemId) {
+            R.id.logout -> handleLogout()
+            R.id.refreshToken -> handleRefreshToken()
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    @SuppressLint("CheckResult")
+    private fun handleLogout() {
+        api.logout("barkoder-frontend", refreshToken)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                Toast.makeText(this, "logged out :)", Toast.LENGTH_LONG).show()
+                this@MainActivity.startActivity(Intent(this@MainActivity, LoginActivity::class.java))
+            }, {
+                it.printStackTrace()
+                Toast.makeText(this@MainActivity, "Error: ${it.message}", Toast.LENGTH_LONG).show()
+            })
+    }
+
+    @SuppressLint("CheckResult", "SetTextI18n")
+    private fun handleRefreshToken() {
+        api.refreshAccessToken(refreshToken, "barkoder-frontend")
+            .compose(bindToLifecycle())
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { tok ->
+                token = tok.accessToken!!
+                refreshToken = tok.refreshToken!!
+                text.text =
+                        "token: $token\n\n" +
+                        "refreshToken: $refreshToken\n\n" +
+                        "expires in: ${tok.expiresIn}\n\n" +
+                        "refresh expires in: ${tok.refreshExpiresIn}"
+            }
     }
 
     override fun onBackPressed() {}

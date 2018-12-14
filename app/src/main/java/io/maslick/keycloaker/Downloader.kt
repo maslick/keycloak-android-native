@@ -41,15 +41,15 @@ interface IKeycloakRest {
         @Field("code")         code: String,
         @Field("client_id")    clientId: String,
         @Field("redirect_uri") uri: String,
-        @Field("grant_type")   grantType: String
+        @Field("grant_type")   grantType: String = "authorization_code"
     ): Observable<KeycloakToken>
 
     @POST("token")
     @FormUrlEncoded
     fun refreshAccessToken(
-        @Field("grant_type")    grantType: String,
         @Field("refresh_token") refreshToken: String,
-        @Field("client_id")     clientId: String
+        @Field("client_id")     clientId: String,
+        @Field("grant_type")    grantType: String = "refresh_token"
     ): Observable<KeycloakToken>
 
     @POST("logout")

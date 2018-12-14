@@ -59,7 +59,7 @@ class LoginActivity : RxAppCompatActivity() {
                 super.onPageStarted(view, url, favicon)
                 if (url.startsWith(redirectUri)) {
                     AsyncHelper.uiThreadExecutor { webView.visibility = View.GONE }
-                    api.grantNewAccessToken(HttpUrl.parse(url)!!.queryParameter("code")!!, clientId, redirectUri, "authorization_code")
+                    api.grantNewAccessToken(HttpUrl.parse(url)!!.queryParameter("code")!!, clientId, redirectUri)
                         .subscribeOn(Schedulers.io())
                         .compose(bindToLifecycle())
                         .observeOn(AndroidSchedulers.mainThread())
