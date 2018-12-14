@@ -11,19 +11,18 @@ import com.trello.rxlifecycle2.components.support.RxAppCompatActivity
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
+import org.koin.android.ext.android.inject
 
 class MainActivity : RxAppCompatActivity() {
 
     lateinit var token: String
     lateinit var refreshToken: String
-    lateinit var api: IKeycloakRest
+    val api by inject<IKeycloakRest>()
 
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-        api = Downloader.retrofit.create(IKeycloakRest::class.java)
 
         token = intent.getStringExtra("token")
         refreshToken = intent.getStringExtra("refreshToken")

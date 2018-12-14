@@ -1,37 +1,15 @@
 package io.maslick.keycloaker
 
-import com.google.gson.GsonBuilder
 import com.google.gson.annotations.SerializedName
 import io.reactivex.Completable
 import io.reactivex.Observable
-import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
-import retrofit2.Retrofit
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
-import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.POST
-import timber.log.Timber
 
 
 object Downloader {
     const val baseUrl = "https://activeclouder.ijs.si/auth/realms/barkoder/protocol/openid-connect"
-
-    val interceptor = HttpLoggingInterceptor(HttpLoggingInterceptor.Logger { Timber.i(it) })
-        .setLevel(HttpLoggingInterceptor.Level.BODY)
-
-    val okHttpClient = OkHttpClient()
-        .newBuilder()
-        .addInterceptor(interceptor)
-        .build()
-
-    val retrofit = Retrofit.Builder()
-        .baseUrl("$baseUrl/")
-        .client(okHttpClient)
-        .addConverterFactory(GsonConverterFactory.create(GsonBuilder().setLenient().create()))
-        .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-        .build()
 }
 
 interface IKeycloakRest {

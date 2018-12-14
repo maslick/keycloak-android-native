@@ -44,6 +44,12 @@ dependencies {
     implementation 'com.trello.rxlifecycle2:rxlifecycle-components:2.2.2'
     implementation 'com.trello.rxlifecycle2:rxlifecycle-kotlin:2.2.2'
 
+    // koin
+    implementation "org.koin:koin-core:1.0.2"
+    implementation "org.koin:koin-android:1.0.2"
+    implementation "org.koin:koin-android-architecture:0.9.3"
+    androidTestImplementation "org.koin:koin-test:1.0.2"
+
     // timber
     implementation 'com.jakewharton.timber:timber:4.7.0'
 

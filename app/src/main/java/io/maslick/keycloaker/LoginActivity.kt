@@ -16,10 +16,13 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_login.*
 import okhttp3.HttpUrl
+import org.koin.android.ext.android.inject
 import timber.log.Timber
 
 
 class LoginActivity : RxAppCompatActivity() {
+
+    val api by inject<IKeycloakRest>()
 
     val clientId = "barkoder-frontend"
     val redirectUri = "https://maslick.io/barkoder"
@@ -31,13 +34,9 @@ class LoginActivity : RxAppCompatActivity() {
         .build()
         .toString()
 
-    lateinit var api: IKeycloakRest
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
-
-        api = Downloader.retrofit.create(IKeycloakRest::class.java)
         initTimber()
         initAuth()
     }
@@ -47,6 +46,7 @@ class LoginActivity : RxAppCompatActivity() {
         Timber.plant(tree)
     }
 
+    @SuppressLint("SetJavaScriptEnabled")
     private fun initAuth() {
         webView.settings.userAgentString = "Barkoder/0.1 Android app"
         webView.settings.javaScriptEnabled = true
