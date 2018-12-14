@@ -48,8 +48,7 @@ class LoginActivity : RxAppCompatActivity() {
     }
 
     private fun initAuth() {
-        val ua = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:46.0) Gecko/20100101 Firefox/46.0"
-        webView.settings.userAgentString = ua
+        webView.settings.userAgentString = "Barkoder/0.1 Android app"
         webView.settings.javaScriptEnabled = true
         clearCookies()
         webView.settings.javaScriptCanOpenWindowsAutomatically = true
