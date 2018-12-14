@@ -3,7 +3,7 @@ native Android client for Keycloak
 
 ## Features
 * gets an OAuth2.0 token via the ``Authorization Code`` flow (access type: ``public client``)
-* uses ``WebView`` as opposed to using the browser, intents and URI schemas.
+* uses ``WebView`` as opposed to using the browser or Chrome Custom Tabs
 * stores the access token in the ``SharedPreferences``
 * checks if the stored access token is expired and automatically refreshes it
 * Proguard configuration for the latest versions of ``RxJava2``, ``retrofit2``, ``okHttp3``
