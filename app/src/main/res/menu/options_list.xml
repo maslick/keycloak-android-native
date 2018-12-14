@@ -3,13 +3,13 @@
       xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/logout"
-        android:title="Logout"
+        android:id="@+id/refreshToken"
+        android:title="Refresh token"
         app:showAsAction="never"/>
 
     <item
-        android:id="@+id/refreshToken"
-        android:title="Refresh token"
+        android:id="@+id/logout"
+        android:title="Logout"
         app:showAsAction="never"/>
 
 </menu>
