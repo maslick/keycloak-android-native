@@ -8,6 +8,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
 import com.trello.rxlifecycle2.components.support.RxAppCompatActivity
+import io.maslick.keycloaker.Config.clientId
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
@@ -68,7 +69,7 @@ class MainActivity : RxAppCompatActivity() {
 
     @SuppressLint("CheckResult", "SetTextI18n")
     private fun handleRefreshToken() {
-        api.refreshAccessToken(refreshToken, "barkoder-frontend")
+        api.refreshAccessToken(refreshToken, clientId)
             .compose(bindToLifecycle())
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())

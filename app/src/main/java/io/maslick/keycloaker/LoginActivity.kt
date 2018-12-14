@@ -12,6 +12,9 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
 import com.trello.rxlifecycle2.components.support.RxAppCompatActivity
+import io.maslick.keycloaker.Config.authenticationCodeUrl
+import io.maslick.keycloaker.Config.clientId
+import io.maslick.keycloaker.Config.redirectUri
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_login.*
@@ -24,9 +27,7 @@ class LoginActivity : RxAppCompatActivity() {
 
     val api by inject<IKeycloakRest>()
 
-    val clientId = "barkoder-frontend"
-    val redirectUri = "https://maslick.io/barkoder"
-    val authCodeUrl = Uri.parse("${Downloader.baseUrl}/auth")
+    val authCodeUrl = Uri.parse(authenticationCodeUrl)
         .buildUpon()
         .appendQueryParameter("client_id", clientId)
         .appendQueryParameter("redirect_uri", redirectUri)
