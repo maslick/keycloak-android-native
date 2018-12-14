@@ -2,7 +2,21 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
+
+def keystorePropertiesFile = rootProject.file("keystore.properties")
+def keystoreProperties = new Properties()
+keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+
 android {
+    signingConfigs {
+        release {
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+            storeFile file(keystoreProperties['storeFile'])
+            storePassword keystoreProperties['storePassword']
+        }
+    }
+
     compileSdkVersion 27
     defaultConfig {
         applicationId "io.maslick.keycloaker"
@@ -12,11 +26,26 @@ android {
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
+
     buildTypes {
-        release {
+        debug {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+
+        release {
+            debuggable true
+            minifyEnabled true
+            proguardFile 'proguard/rxjava.pro'
+            proguardFile 'proguard/retrofit.pro'
+            proguardFile 'proguard/koin.pro'
+            proguardFile getDefaultProguardFile('proguard-android.txt')
+            signingConfig signingConfigs.release
+        }
+    }
+
+    packagingOptions {
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/ASL2.0'
     }
 }
 
@@ -47,10 +76,8 @@ dependencies {
     // koin
     implementation "org.koin:koin-core:1.0.2"
     implementation "org.koin:koin-android:1.0.2"
-    implementation "org.koin:koin-android-architecture:0.9.3"
     androidTestImplementation "org.koin:koin-test:1.0.2"
 
     // timber
     implementation 'com.jakewharton.timber:timber:4.7.0'
-
 }
