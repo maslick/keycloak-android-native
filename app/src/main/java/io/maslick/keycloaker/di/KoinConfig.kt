@@ -4,6 +4,8 @@ import android.content.Context
 import com.google.gson.GsonBuilder
 import com.google.gson.annotations.SerializedName
 import io.maslick.keycloaker.Config.baseUrl
+import io.maslick.keycloaker.storage.IOAuth2AccessTokenStorage
+import io.maslick.keycloaker.storage.SharedPreferencesOAuth2Storage
 import io.reactivex.Completable
 import io.reactivex.Observable
 import okhttp3.OkHttpClient
@@ -16,13 +18,16 @@ import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.POST
 import timber.log.Timber
+import java.util.*
 
 val sharedPrefsModule = module {
-    fun prefs(context: Context) = context.getSharedPreferences("barkoder", Context.MODE_PRIVATE)
+    fun prefs(context: Context) = context.getSharedPreferences("barkoder", Context.MODE_PRIVATE)!!
     single { prefs(get()) }
+    single<IOAuth2AccessTokenStorage> { SharedPreferencesOAuth2Storage(get(), get()) }
 }
 
 val apiModule = module {
+    single { GsonBuilder().setLenient().create() }
     single {
         val interceptor = HttpLoggingInterceptor(HttpLoggingInterceptor.Logger { mess -> Timber.i(mess) })
             .setLevel(HttpLoggingInterceptor.Level.BODY)
@@ -35,7 +40,7 @@ val apiModule = module {
         val retrofit = Retrofit.Builder()
             .baseUrl("$baseUrl/")
             .client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create(GsonBuilder().setLenient().create()))
+            .addConverterFactory(GsonConverterFactory.create(get()))
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .build()
 
@@ -81,5 +86,6 @@ data class KeycloakToken(
     @SerializedName("token_type")         val tokenType: String? = null,
     @SerializedName("id_token")           val idToken: String? = null,
     @SerializedName("not-before-policy")  val notBeforePolicy: Int? = null,
-    @SerializedName("session_state")      val sessionState: String? = null
+    @SerializedName("session_state")      val sessionState: String? = null,
+                                          val expirationDate: Calendar? = null
 )

@@ -9,8 +9,10 @@ import android.view.MenuItem
 import android.widget.Toast
 import com.trello.rxlifecycle2.components.support.RxAppCompatActivity
 import io.maslick.keycloaker.Config.clientId
-import io.maslick.keycloaker.di.IKeycloakRest
 import io.maslick.keycloaker.R
+import io.maslick.keycloaker.di.IKeycloakRest
+import io.maslick.keycloaker.di.KeycloakToken
+import io.maslick.keycloaker.storage.IOAuth2AccessTokenStorage
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
@@ -18,20 +20,20 @@ import org.koin.android.ext.android.inject
 
 class MainActivity : RxAppCompatActivity() {
 
-    lateinit var token: String
-    lateinit var refreshToken: String
     val api by inject<IKeycloakRest>()
+    val storage by inject<IOAuth2AccessTokenStorage>()
 
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        token = intent.getStringExtra("token")
-        refreshToken = intent.getStringExtra("refreshToken")
+        val token = intent.getStringExtra("token")
+        val refreshToken = intent.getStringExtra("refreshToken")
         val expiresIn = intent.getIntExtra("expiresIn", -1)
         val refreshExpiresIn = intent.getIntExtra("refreshExpiresIn", -1)
 
+        storage.storeAccessToken(KeycloakToken(token, expiresIn, refreshExpiresIn, refreshToken))
 
         text.movementMethod = ScrollingMovementMethod()
         text.text =
@@ -57,6 +59,7 @@ class MainActivity : RxAppCompatActivity() {
 
     @SuppressLint("CheckResult")
     private fun handleLogout() {
+        val refreshToken = storage.getStoredAccessToken().blockingGet()!!.refreshToken!!
         api.logout("barkoder-frontend", refreshToken)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
@@ -71,16 +74,16 @@ class MainActivity : RxAppCompatActivity() {
 
     @SuppressLint("CheckResult", "SetTextI18n")
     private fun handleRefreshToken() {
+        val refreshToken = storage.getStoredAccessToken().blockingGet()!!.refreshToken!!
         api.refreshAccessToken(refreshToken, clientId)
             .compose(bindToLifecycle())
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe { tok ->
-                token = tok.accessToken!!
-                refreshToken = tok.refreshToken!!
+                storage.storeAccessToken(tok)
                 text.text =
-                        "token: $token\n\n" +
-                        "refreshToken: $refreshToken\n\n" +
+                        "token: ${tok.accessToken}\n\n" +
+                        "refreshToken: ${tok.accessToken}\n\n" +
                         "expires in: ${tok.expiresIn}\n\n" +
                         "refresh expires in: ${tok.refreshExpiresIn}"
             }
