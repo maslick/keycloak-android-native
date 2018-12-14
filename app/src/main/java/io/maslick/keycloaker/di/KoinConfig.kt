@@ -1,4 +1,4 @@
-package io.maslick.keycloaker
+package io.maslick.keycloaker.di
 
 import android.content.Context
 import com.google.gson.GsonBuilder

@@ -1,4 +1,4 @@
-package io.maslick.keycloaker
+package io.maslick.keycloaker.activities
 
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -15,6 +15,9 @@ import com.trello.rxlifecycle2.components.support.RxAppCompatActivity
 import io.maslick.keycloaker.Config.authenticationCodeUrl
 import io.maslick.keycloaker.Config.clientId
 import io.maslick.keycloaker.Config.redirectUri
+import io.maslick.keycloaker.R
+import io.maslick.keycloaker.di.IKeycloakRest
+import io.maslick.keycloaker.helper.AsyncHelper
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_login.*

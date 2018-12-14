@@ -1,4 +1,4 @@
-package io.maslick.keycloaker
+package io.maslick.keycloaker.helper
 
 import android.annotation.SuppressLint
 import android.os.Handler

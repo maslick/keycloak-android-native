@@ -1,4 +1,4 @@
-package io.maslick.keycloaker
+package io.maslick.keycloaker.activities
 
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -9,6 +9,8 @@ import android.view.MenuItem
 import android.widget.Toast
 import com.trello.rxlifecycle2.components.support.RxAppCompatActivity
 import io.maslick.keycloaker.Config.clientId
+import io.maslick.keycloaker.di.IKeycloakRest
+import io.maslick.keycloaker.R
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
