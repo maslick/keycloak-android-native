@@ -6,6 +6,7 @@ native Android client for Keycloak
 * uses ``WebView`` as opposed to using the browser or Chrome Custom Tabs
 * stores the access token in the ``SharedPreferences``
 * checks if the stored access token is expired and automatically refreshes it
+* uses [Koin](https://github.com/InsertKoinIO/koin) as the dependency injection framework
 * Proguard configuration for the latest versions of ``RxJava2``, ``retrofit2``, ``okHttp3``
 
 
@@ -18,5 +19,4 @@ object Config {
     const val authenticationCodeUrl = "$baseUrl/auth"
     const val redirectUri = "https://any-https-address.si"
 }
-
 ```
