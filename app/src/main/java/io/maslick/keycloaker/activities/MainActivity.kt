@@ -9,14 +9,15 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
 import com.trello.rxlifecycle2.components.support.RxAppCompatActivity
+import io.maslick.keycloaker.Config
 import io.maslick.keycloaker.R
 import io.maslick.keycloaker.di.IKeycloakRest
+import io.maslick.keycloaker.helper.Helper.formatDate
 import io.maslick.keycloaker.storage.IOAuth2AccessTokenStorage
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
 import org.koin.android.ext.android.inject
-import io.maslick.keycloaker.helper.Helper.formatDate
 
 class MainActivity : RxAppCompatActivity() {
 
@@ -77,7 +78,7 @@ class MainActivity : RxAppCompatActivity() {
     @SuppressLint("CheckResult")
     private fun handleLogout() {
         val refreshToken = storage.getStoredAccessToken()!!.refreshToken!!
-        api.logout("barkoder-frontend", refreshToken)
+        api.logout(Config.clientId, refreshToken)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
