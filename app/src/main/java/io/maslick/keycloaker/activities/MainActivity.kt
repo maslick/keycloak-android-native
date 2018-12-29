@@ -13,6 +13,7 @@ import io.maslick.keycloaker.Config
 import io.maslick.keycloaker.R
 import io.maslick.keycloaker.di.IKeycloakRest
 import io.maslick.keycloaker.helper.Helper.formatDate
+import io.maslick.keycloaker.helper.Helper.parseJwtToken
 import io.maslick.keycloaker.storage.IOAuth2AccessTokenStorage
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -65,12 +66,16 @@ class MainActivity : RxAppCompatActivity() {
         val token = storage.getStoredAccessToken()
 
         token?.apply {
+            val tok = parseJwtToken(accessToken!!)
             text.movementMethod = ScrollingMovementMethod()
             text.text =
-                    "token: ${token.accessToken}\n\n" +
-                    "refreshToken: ${token.refreshToken}\n\n" +
-                    "expires in: ${token.expiresIn} (${token.expirationDate!!.formatDate()})\n\n" +
-                    "refresh expires in: ${token.refreshExpiresIn} sec\n\n"
+                    "User id: ${tok[0]}\n\n" +
+                    "User: ${tok[1]} / ${tok[2]} ${tok[3]}\n\n" +
+                    "Roles: ${tok[4]}\n\n" +
+                    "token: $accessToken\n\n" +
+                    "refreshToken: $refreshToken\n\n" +
+                    "expires in: $expiresIn (${expirationDate!!.formatDate()})\n\n" +
+                    "refresh expires in: $refreshExpiresIn sec\n\n"
         }
 
     }

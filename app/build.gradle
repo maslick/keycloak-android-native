@@ -80,4 +80,9 @@ dependencies {
 
     // timber
     implementation 'com.jakewharton.timber:timber:4.7.0'
+
+    // JWT
+    implementation 'com.google.code.gson:gson:2.8.5'
+    implementation 'com.brsanthu:migbase64:2.2'
+
 }
