@@ -17,7 +17,6 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.POST
-import timber.log.Timber
 import java.util.*
 
 val sharedPrefsModule = module {
@@ -29,7 +28,7 @@ val sharedPrefsModule = module {
 val apiModule = module {
     single { GsonBuilder().setLenient().create() }
     single {
-        val interceptor = HttpLoggingInterceptor(HttpLoggingInterceptor.Logger { mess -> Timber.i(mess) })
+        val interceptor = HttpLoggingInterceptor(HttpLoggingInterceptor.Logger { mess -> println(mess) })
             .setLevel(HttpLoggingInterceptor.Level.BODY)
 
         val okHttpClient = OkHttpClient()
@@ -79,13 +78,14 @@ interface IKeycloakRest {
 }
 
 data class KeycloakToken(
-    @SerializedName("access_token")       var accessToken: String? = null,
-    @SerializedName("expires_in")         var expiresIn: Int? = null,
-    @SerializedName("refresh_expires_in") var refreshExpiresIn: Int? = null,
-    @SerializedName("refresh_token")      var refreshToken: String? = null,
-    @SerializedName("token_type")         var tokenType: String? = null,
-    @SerializedName("id_token")           var idToken: String? = null,
-    @SerializedName("not-before-policy")  var notBeforePolicy: Int? = null,
-    @SerializedName("session_state")      var sessionState: String? = null,
-    @SerializedName("expiration_date")    var expirationDate: Calendar? = null
+    @SerializedName("access_token")               var accessToken: String? = null,
+    @SerializedName("expires_in")                 var expiresIn: Int? = null,
+    @SerializedName("refresh_expires_in")         var refreshExpiresIn: Int? = null,
+    @SerializedName("refresh_token")              var refreshToken: String? = null,
+    @SerializedName("token_type")                 var tokenType: String? = null,
+    @SerializedName("id_token")                   var idToken: String? = null,
+    @SerializedName("not-before-policy")          var notBeforePolicy: Int? = null,
+    @SerializedName("session_state")              var sessionState: String? = null,
+    @SerializedName("token_expiration_date")      var tokenExpirationDate: Calendar? = null,
+    @SerializedName("refresh_expiration_date")    var refreshTokenExpirationDate: Calendar? = null
 )

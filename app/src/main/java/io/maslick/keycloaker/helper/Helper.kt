@@ -37,7 +37,16 @@ object AsyncHelper {
 object Helper {
     fun isTokenExpired(token: KeycloakToken?): Boolean {
         token?.apply {
-            return this.expirationDate != null && Calendar.getInstance().after(this.expirationDate)
+            if (tokenExpirationDate == null) return true
+            return Calendar.getInstance().after(tokenExpirationDate)
+        }
+        return true
+    }
+
+    fun isRefreshTokenExpired(token: KeycloakToken?): Boolean {
+        token?.apply {
+            if (refreshTokenExpirationDate == null) return true
+            return Calendar.getInstance().after(refreshTokenExpirationDate)
         }
         return true
     }

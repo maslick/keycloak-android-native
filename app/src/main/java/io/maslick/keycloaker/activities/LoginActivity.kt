@@ -18,16 +18,13 @@ import io.maslick.keycloaker.R
 import io.maslick.keycloaker.di.IKeycloakRest
 import io.maslick.keycloaker.di.KeycloakToken
 import io.maslick.keycloaker.helper.AsyncHelper
-import io.maslick.keycloaker.helper.Helper.isTokenExpired
 import io.maslick.keycloaker.storage.IOAuth2AccessTokenStorage
-import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.functions.Consumer
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_login.*
 import okhttp3.HttpUrl
 import org.koin.android.ext.android.inject
-import timber.log.Timber
 import java.util.*
 
 
@@ -47,29 +44,11 @@ class LoginActivity : RxAppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
-        initTimber()
-        checkTokenInStorage()
-        initAuth()
-    }
-
-    private fun checkTokenInStorage() {
-        val accessToken = storage.getStoredAccessToken()
-        if (accessToken == null) return
-        else if (!isTokenExpired(accessToken)) {
-            setResult(RESULT_OK)
-            finish()
-        }
-        else
-            handleRefreshToken(accessToken.refreshToken!!).subscribe(handleSuccess(), handleError())
-    }
-
-    private fun initTimber() {
-        val tree = Timber.DebugTree()
-        Timber.plant(tree)
+        startAuthProccess()
     }
 
     @SuppressLint("SetJavaScriptEnabled", "CheckResult")
-    private fun initAuth() {
+    private fun startAuthProccess() {
         webView.settings.userAgentString = "Barkoder/0.1 Android app"
         webView.settings.javaScriptEnabled = true
         webView.settings.javaScriptCanOpenWindowsAutomatically = true
@@ -102,8 +81,11 @@ class LoginActivity : RxAppCompatActivity() {
     private fun handleSuccess(): Consumer<KeycloakToken> {
         return Consumer { token ->
             val expirationDate = Calendar.getInstance().clone() as Calendar
+            val refreshExpirationDate = Calendar.getInstance().clone() as Calendar
             expirationDate.add(Calendar.SECOND, token.expiresIn!!)
-            token.expirationDate = expirationDate
+            refreshExpirationDate.add(Calendar.SECOND, token.refreshExpiresIn!!)
+            token.tokenExpirationDate = expirationDate
+            token.refreshTokenExpirationDate = refreshExpirationDate
             storage.storeAccessToken(token)
             setResult(RESULT_OK)
             finish()
@@ -115,13 +97,5 @@ class LoginActivity : RxAppCompatActivity() {
             it.printStackTrace()
             Toast.makeText(this@LoginActivity, "Error: ${it.message}", Toast.LENGTH_LONG).show()
         }
-    }
-
-    @SuppressLint("CheckResult", "SetTextI18n")
-    private fun handleRefreshToken(refreshToken: String): Observable<KeycloakToken> {
-        return api.refreshAccessToken(refreshToken, clientId)
-            .compose(bindToLifecycle())
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
     }
 }

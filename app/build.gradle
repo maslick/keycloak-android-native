@@ -78,11 +78,10 @@ dependencies {
     implementation "org.koin:koin-android:1.0.2"
     androidTestImplementation "org.koin:koin-test:1.0.2"
 
-    // timber
-    implementation 'com.jakewharton.timber:timber:4.7.0'
-
     // JWT
     implementation 'com.google.code.gson:gson:2.8.5'
     implementation 'com.brsanthu:migbase64:2.2'
 
+    // WorkManager
+    implementation 'android.arch.work:work-runtime-ktx:1.0.0-beta01'
 }
