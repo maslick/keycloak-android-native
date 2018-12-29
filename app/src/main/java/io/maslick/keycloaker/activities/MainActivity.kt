@@ -66,12 +66,12 @@ class MainActivity : RxAppCompatActivity() {
         val token = storage.getStoredAccessToken()
 
         token?.apply {
-            val tok = parseJwtToken(accessToken!!)
+            val principal = parseJwtToken(accessToken!!)
             text.movementMethod = ScrollingMovementMethod()
             text.text =
-                    "User id: ${tok[0]}\n\n" +
-                    "User: ${tok[1]} / ${tok[2]} ${tok[3]}\n\n" +
-                    "Roles: ${tok[4]}\n\n" +
+                    "User id: ${principal.userId}\n\n" +
+                    "User: ${principal.name} / ${principal.surname} ${principal.email}\n\n" +
+                    "Roles: ${principal.roles.joinToString(", ")}\n\n" +
                     "token: $accessToken\n\n" +
                     "refreshToken: $refreshToken\n\n" +
                     "expires in: $expiresIn (${expirationDate!!.formatDate()})\n\n" +

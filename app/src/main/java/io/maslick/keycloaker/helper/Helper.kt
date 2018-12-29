@@ -48,8 +48,9 @@ object Helper {
         return formatter.format(this.time)
     }
 
-    fun parseJwtToken(jwtToken: String?): Array<String> {
-        jwtToken?.apply {
+    fun parseJwtToken(jwtToken: String?): Principal {
+        jwtToken ?: return Principal()
+        jwtToken.apply {
             val splitString = split(".")
             val base64EncodedBody = splitString[1]
 
@@ -60,9 +61,17 @@ object Helper {
             val email = jsonBody.get("email").asString
             val name = jsonBody.get("given_name").asString
             val surname = jsonBody.get("family_name").asString
-            val roles = jsonBody.get("realm_access").asJsonObject.getAsJsonArray("roles").map {it.asString}.joinToString(", ")
+            val roles = jsonBody.get("realm_access").asJsonObject.getAsJsonArray("roles").map {it.asString}
 
-            return arrayOf(userId, email, name, surname, roles)
+            return Principal(userId, email, name, surname, roles)
         }
     }
 }
+
+data class Principal(
+    val userId: String? = null,
+    val email: String? = null,
+    val name: String? = null,
+    val surname: String? = null,
+    val roles: List<String> = emptyList()
+)

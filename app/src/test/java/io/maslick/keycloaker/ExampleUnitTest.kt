@@ -15,17 +15,23 @@ class ExampleUnitTest {
 
     @Test
     fun testJwtParse() {
-        val parsed = Helper.parseJwtToken(jwtToken)
-        val userId = parsed[0]
-        val email = parsed[1]
-        val name = parsed[2]
-        val surname = parsed[3]
-        val roles = parsed[4]
+        val principal = Helper.parseJwtToken(jwtToken)
 
-        Assert.assertEquals("d3a09897-349a-4b92-a96b-888eae1d2318", userId)
-        Assert.assertEquals("pavel.masloff@gmail.com", email)
-        Assert.assertEquals("Pavel", name)
-        Assert.assertEquals("Masloff", surname)
-        Assert.assertEquals("craftroom", roles)
+        Assert.assertEquals("d3a09897-349a-4b92-a96b-888eae1d2318", principal.userId)
+        Assert.assertEquals("pavel.masloff@gmail.com", principal.email)
+        Assert.assertEquals("Pavel", principal.name)
+        Assert.assertEquals("Masloff", principal.surname)
+        Assert.assertEquals("craftroom", principal.roles[0])
+    }
+
+    @Test
+    fun testNullJwt() {
+        val principal = Helper.parseJwtToken(null)
+
+        Assert.assertEquals(null, principal.userId)
+        Assert.assertEquals(null, principal.email)
+        Assert.assertEquals(null, principal.name)
+        Assert.assertEquals(null, principal.surname)
+        Assert.assertEquals(0, principal.roles.size)
     }
 }
