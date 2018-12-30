@@ -56,7 +56,8 @@ class RefreshTokenWorker(context: Context, params: WorkerParameters): Worker(con
 
         return try {
             val token = saveTokenToStorage(api.refreshAccessToken(storage.getStoredAccessToken()!!.refreshToken!!, Config.clientId).blockingFirst())
-            showOk(notificationId, token.refreshTokenExpirationDate!!.formatDate())
+            showOk(System.currentTimeMillis().toInt(), "Token is valid until: ${token.tokenExpirationDate!!.formatDate()}")
+            showOk(notificationId, "Refresh token is valid until: ${token.refreshTokenExpirationDate!!.formatDate()}")
             Result.success()
         } catch (e: Exception) {
             showError(notificationId)
@@ -81,7 +82,7 @@ class RefreshTokenWorker(context: Context, params: WorkerParameters): Worker(con
         val builder = NotificationCompat.Builder(applicationContext, channelId)
             .setSmallIcon(R.drawable.notification_icon_background)
             .setContentTitle("Keycloaker")
-            .setContentText("Refresh token is valid until: $message")
+            .setContentText(message)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setColor(Color.GREEN)
 
