@@ -34,7 +34,7 @@ class RefreshTokenWorker(context: Context, params: WorkerParameters): Worker(con
             WorkManager.getInstance().enqueueUniquePeriodicWork("kc-refresh-token-work", REPLACE, periodicWork)
         }
 
-        const val channelId = "keycloaker_id"
+        const val channelId = "keycloaker_channel_id"
     }
 
     init {
@@ -50,7 +50,7 @@ class RefreshTokenWorker(context: Context, params: WorkerParameters): Worker(con
 
     override fun doWork(): Result {
         val notificationId = System.currentTimeMillis().toInt()
-        triggerNotification(notificationId)
+        triggerTokenNotification(notificationId)
         if (storage.getStoredAccessToken() == null || storage.getStoredAccessToken()!!.refreshToken == null)
             return Result.failure()
 
@@ -64,11 +64,11 @@ class RefreshTokenWorker(context: Context, params: WorkerParameters): Worker(con
         }
     }
 
-    private fun triggerNotification(id: Int) {
+    private fun triggerTokenNotification(id: Int) {
         val builder = NotificationCompat.Builder(applicationContext, channelId)
             .setSmallIcon(R.drawable.notification_icon_background)
             .setContentTitle("Keycloaker")
-            .setContentText("Updating refresh token...")
+            .setContentText("Updating token using refresh token...")
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setColor(Color.BLUE)
 
@@ -77,7 +77,7 @@ class RefreshTokenWorker(context: Context, params: WorkerParameters): Worker(con
         }
     }
 
-    private fun showOk(id: Int, message: String = "") {
+    private fun showOk(id: Int, message: String) {
         val builder = NotificationCompat.Builder(applicationContext, channelId)
             .setSmallIcon(R.drawable.notification_icon_background)
             .setContentTitle("Keycloaker")
@@ -94,7 +94,7 @@ class RefreshTokenWorker(context: Context, params: WorkerParameters): Worker(con
         val builder = NotificationCompat.Builder(applicationContext, channelId)
             .setSmallIcon(R.drawable.notification_icon_background)
             .setContentTitle("Keycloaker")
-            .setContentText("Refresh token update failed :(")
+            .setContentText("Token refresh failed :(")
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setColor(Color.RED)
 
