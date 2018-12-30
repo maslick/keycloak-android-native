@@ -33,12 +33,18 @@ class MainActivity : RxAppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         startPeriodicRefreshTokenTask()
+        swiper?.apply {
+            setOnRefreshListener {
+                isRefreshing = true
+                showData()
+                isRefreshing = false
+            }
+        }
     }
 
     override fun onResume() {
         super.onResume()
-        val token = storage.getStoredAccessToken()
-        if (isRefreshTokenExpired(token))
+        if (isRefreshTokenExpired(storage.getStoredAccessToken()))
             startActivityForResult(Intent(this, LoginActivity::class.java), AUTHORIZATION_REQUEST_CODE)
         showData()
     }

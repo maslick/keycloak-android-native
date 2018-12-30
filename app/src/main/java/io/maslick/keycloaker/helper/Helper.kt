@@ -66,11 +66,11 @@ object Helper {
             val body = String(Base64.decodeFast(base64EncodedBody))
             val jsonBody = Gson().fromJson(body, JsonObject::class.java)
 
-            val userId = jsonBody.get("sub").asString
-            val email = jsonBody.get("email").asString
-            val name = jsonBody.get("given_name").asString
-            val surname = jsonBody.get("family_name").asString
-            val roles = jsonBody.get("realm_access").asJsonObject.getAsJsonArray("roles").map {it.asString}
+            val userId = jsonBody.get("sub")?.asString
+            val email = jsonBody.get("email")?.asString ?: "n/a"
+            val name = jsonBody.get("given_name")?.asString ?: "n/a"
+            val surname = jsonBody.get("family_name")?.asString ?: "n/a"
+            val roles = jsonBody.get("realm_access")?.asJsonObject?.getAsJsonArray("roles")?.map {it.asString} ?: emptyList()
 
             return Principal(userId, email, name, surname, roles)
         }
