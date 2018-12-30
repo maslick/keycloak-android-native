@@ -37,7 +37,16 @@ object AsyncHelper {
 object Helper {
     fun isTokenExpired(token: KeycloakToken?): Boolean {
         token?.apply {
-            return this.expirationDate != null && Calendar.getInstance().after(this.expirationDate)
+            if (tokenExpirationDate == null) return true
+            return Calendar.getInstance().after(tokenExpirationDate)
+        }
+        return true
+    }
+
+    fun isRefreshTokenExpired(token: KeycloakToken?): Boolean {
+        token?.apply {
+            if (refreshTokenExpirationDate == null) return true
+            return Calendar.getInstance().after(refreshTokenExpirationDate)
         }
         return true
     }
@@ -57,11 +66,11 @@ object Helper {
             val body = String(Base64.decodeFast(base64EncodedBody))
             val jsonBody = Gson().fromJson(body, JsonObject::class.java)
 
-            val userId = jsonBody.get("sub").asString
-            val email = jsonBody.get("email").asString
-            val name = jsonBody.get("given_name").asString
-            val surname = jsonBody.get("family_name").asString
-            val roles = jsonBody.get("realm_access").asJsonObject.getAsJsonArray("roles").map {it.asString}
+            val userId = jsonBody.get("sub")?.asString
+            val email = jsonBody.get("email")?.asString ?: "n/a"
+            val name = jsonBody.get("given_name")?.asString ?: "n/a"
+            val surname = jsonBody.get("family_name")?.asString ?: "n/a"
+            val roles = jsonBody.get("realm_access")?.asJsonObject?.getAsJsonArray("roles")?.map {it.asString} ?: emptyList()
 
             return Principal(userId, email, name, surname, roles)
         }
