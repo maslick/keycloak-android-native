@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
 import android.view.View
 import android.widget.Toast
 import com.trello.rxlifecycle2.components.support.RxAppCompatActivity
@@ -38,14 +39,12 @@ class LoginActivity : RxAppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
+
+        authenticate(intent.data)
         initViews()
-        val justAuthenticated = checkOAuthAndReturn(intent)
         login_button.setOnClickListener {
-            if (!justAuthenticated) {
-                login_text.visibility = View.VISIBLE
-                login_button.visibility = View.GONE
-                launchBrowser()
-            }
+            hideLoginButton()
+            startActivity(Intent(Intent.ACTION_VIEW, authCodeUrl))
         }
     }
 
@@ -54,33 +53,40 @@ class LoginActivity : RxAppCompatActivity() {
         login_button.visibility = View.VISIBLE
     }
 
+    private fun hideLoginButton() {
+        Handler().postDelayed({
+            login_text.visibility = View.VISIBLE
+            login_button.visibility = View.GONE
+        }, 1000L)
+    }
+
+    private fun hideAll() {
+        login_text.visibility = View.GONE
+        login_button.visibility = View.GONE
+    }
+
     override fun onNewIntent(intent: Intent) {
-        checkOAuthAndReturn(intent)
+        super.onNewIntent(intent)
+        authenticate(intent.data)
     }
 
     override fun onBackPressed() {}
 
     @SuppressLint("CheckResult")
-    private fun checkOAuthAndReturn(intent: Intent): Boolean {
-        var returnFromAuth = false
-        val uri = intent.data
-
+    private fun authenticate(uri: Uri?) {
         if (uri != null && uri.toString().startsWith(redirectUri)) {
             val code = uri.getQueryParameter("code")
-            println(code)
-            returnFromAuth = true
-            api.grantNewAccessToken(code, clientId, redirectUri)
-                .subscribeOn(Schedulers.io())
-                .compose(bindToLifecycle())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(handleSuccess(), handleError())
+            hideAll()
+            exchangeCodeForToken(code)
         }
-
-        return returnFromAuth
     }
 
-    private fun launchBrowser() {
-        startActivity(Intent(Intent.ACTION_VIEW, authCodeUrl))
+    @SuppressLint("CheckResult")
+    private fun exchangeCodeForToken(code: String) {
+        api.grantNewAccessToken(code, clientId, redirectUri)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(handleSuccess(), handleError())
     }
 
     private fun handleSuccess(): Consumer<KeycloakToken> {
