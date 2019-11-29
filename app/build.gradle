@@ -3,20 +3,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
 
-def keystorePropertiesFile = rootProject.file("keystore.properties")
-def keystoreProperties = new Properties()
-keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
-
 android {
-    signingConfigs {
-        release {
-            keyAlias keystoreProperties['keyAlias']
-            keyPassword keystoreProperties['keyPassword']
-            storeFile file(keystoreProperties['storeFile'])
-            storePassword keystoreProperties['storePassword']
-        }
-    }
-
     compileSdkVersion 27
     defaultConfig {
         applicationId "io.maslick.keycloaker"
@@ -39,7 +26,6 @@ android {
             proguardFile 'proguard/retrofit.pro'
             proguardFile 'proguard/koin.pro'
             proguardFile getDefaultProguardFile('proguard-android.txt')
-            signingConfig signingConfigs.release
         }
     }
 
